@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -25,92 +24,92 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-    .stApp {
-        background: #0b0b0f;
-        color: #ffffff;
-    }
+.stApp {
+    background: #0b0b0f;
+    color: #ffffff;
+}
 
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 850px;
-    }
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 850px;
+}
 
-    .hero {
-        text-align: center;
-        padding: 25px 0 20px 0;
-    }
+.hero {
+    text-align: center;
+    padding: 25px 0 20px 0;
+}
 
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin: auto;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #7c3aed, #ec4899);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-        box-shadow: 0 10px 40px rgba(124, 58, 237, 0.35);
-    }
+.logo {
+    width: 65px;
+    height: 65px;
+    margin: auto;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 10px 40px rgba(124, 58, 237, 0.35);
+}
 
-    .title {
-        font-size: 38px;
-        font-weight: 750;
-        margin-top: 15px;
-        letter-spacing: -1px;
-    }
+.title {
+    font-size: 38px;
+    font-weight: 750;
+    margin-top: 15px;
+    letter-spacing: -1px;
+}
 
-    .subtitle {
-        color: #888892;
-        font-size: 15px;
-        margin-top: 5px;
-    }
+.subtitle {
+    color: #888892;
+    font-size: 15px;
+    margin-top: 5px;
+}
 
-    .mode-title {
-        font-size: 14px;
-        color: #a1a1aa;
-        margin-bottom: 10px;
-        font-weight: 600;
-    }
+.mode-title {
+    font-size: 14px;
+    color: #a1a1aa;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
 
-    [data-testid="stChatMessage"] {
-        background: #15151b;
-        border: 1px solid #24242d;
-        border-radius: 16px;
-        padding: 12px;
-        margin-bottom: 10px;
-    }
+[data-testid="stChatMessage"] {
+    background: #15151b;
+    border: 1px solid #24242d;
+    border-radius: 16px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
 
-    [data-testid="stChatInput"] {
-        border-radius: 15px;
-    }
+[data-testid="stChatInput"] {
+    border-radius: 15px;
+}
 
-    div[data-baseweb="select"] > div {
-        background-color: #15151b;
-        border: 1px solid #2b2b35;
-        border-radius: 12px;
-    }
+div[data-baseweb="select"] > div {
+    background-color: #15151b;
+    border: 1px solid #2b2b35;
+    border-radius: 12px;
+}
 
-    .stButton button {
-        width: 100%;
-        border-radius: 12px;
-        border: 1px solid #2b2b35;
-        background: #15151b;
-        color: white;
-    }
+.stButton button {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #2b2b35;
+    background: #15151b;
+    color: white;
+}
 
-    .stButton button:hover {
-        border-color: #7c3aed;
-        color: white;
-    }
+.stButton button:hover {
+    border-color: #7c3aed;
+    color: white;
+}
 
-    .footer {
-        text-align: center;
-        color: #55555f;
-        font-size: 12px;
-        margin-top: 25px;
-    }
+.footer {
+    text-align: center;
+    color: #55555f;
+    font-size: 12px;
+    margin-top: 25px;
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -139,9 +138,24 @@ st.markdown(
 )
 
 mode_options = {
-    "😡 Angry Mode": "You are an angry AI assistant. Be angry, irritated, and sarcastic, but still helpful and respectful. Never use abusive or hateful language.",
-    "😢 Sad Mode": "You are a sad AI assistant. Respond in a melancholic, emotional, and gentle way while still being helpful.",
-    "😂 Funny Mode": "You are a funny AI assistant. Respond with humor, jokes, and playful energy while still being helpful."
+    "😡 Angry Mode": (
+        "You are an angry AI assistant. "
+        "Be angry, irritated, and sarcastic, "
+        "but still helpful and respectful. "
+        "Never use abusive or hateful language."
+    ),
+
+    "😢 Sad Mode": (
+        "You are a sad AI assistant. "
+        "Respond in a melancholic, emotional, "
+        "and gentle way while still being helpful."
+    ),
+
+    "😂 Funny Mode": (
+        "You are a funny AI assistant. "
+        "Respond with humor, jokes, and playful energy "
+        "while still being helpful."
+    )
 }
 
 
@@ -187,11 +201,12 @@ if selected_mode != st.session_state.mode:
 # -----------------------------
 api_key = None
 
-# Streamlit Cloud
-if "MISTRAL_API_KEY" in st.secrets:
-    api_key = st.secrets["MISTRAL_API_KEY"]
+try:
+    if "MISTRAL_API_KEY" in st.secrets:
+        api_key = st.secrets["MISTRAL_API_KEY"]
+except Exception:
+    pass
 
-# Local .env
 if not api_key:
     api_key = os.getenv("MISTRAL_API_KEY")
 
@@ -199,7 +214,7 @@ if not api_key:
 if not api_key:
     st.error(
         "Mistral API key not found. "
-        "Add MISTRAL_API_KEY to Streamlit Secrets."
+        "Please add MISTRAL_API_KEY to Streamlit Secrets."
     )
     st.stop()
 
@@ -268,7 +283,7 @@ if prompt:
 
                 st.code(str(e))
 
-                # Remove user message if API call failed
+                # Remove failed user message
                 st.session_state.messages.pop()
 
                 st.stop()
@@ -289,4 +304,3 @@ st.markdown("""
     Powered by Mistral AI • Mood-based conversations
 </div>
 """, unsafe_allow_html=True)
-```
