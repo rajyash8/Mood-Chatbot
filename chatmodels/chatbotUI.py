@@ -1,5 +1,7 @@
+```python
 import streamlit as st
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -23,20 +25,17 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-    /* Main background */
     .stApp {
         background: #0b0b0f;
         color: #ffffff;
     }
 
-    /* Remove default top padding */
     .block-container {
         padding-top: 2rem;
         padding-bottom: 2rem;
         max-width: 850px;
     }
 
-    /* Header */
     .hero {
         text-align: center;
         padding: 25px 0 20px 0;
@@ -68,7 +67,6 @@ st.markdown("""
         margin-top: 5px;
     }
 
-    /* Mode cards */
     .mode-title {
         font-size: 14px;
         color: #a1a1aa;
@@ -76,7 +74,6 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Chat area */
     [data-testid="stChatMessage"] {
         background: #15151b;
         border: 1px solid #24242d;
@@ -85,19 +82,16 @@ st.markdown("""
         margin-bottom: 10px;
     }
 
-    /* Chat input */
     [data-testid="stChatInput"] {
         border-radius: 15px;
     }
 
-    /* Select box */
     div[data-baseweb="select"] > div {
         background-color: #15151b;
         border: 1px solid #2b2b35;
         border-radius: 12px;
     }
 
-    /* Buttons */
     .stButton button {
         width: 100%;
         border-radius: 12px;
@@ -111,7 +105,6 @@ st.markdown("""
         color: white;
     }
 
-    /* Footer */
     .footer {
         text-align: center;
         color: #55555f;
@@ -146,9 +139,9 @@ st.markdown(
 )
 
 mode_options = {
-    "😡 Angry Mode": "You are an angry AI assistant.",
-    "😢 Sad Mode": "You are a sad AI assistant.",
-    "😂 Funny Mode": "You are a funny AI assistant."
+    "😡 Angry Mode": "You are an angry AI assistant. Be angry, irritated, and sarcastic, but still helpful and respectful. Never use abusive or hateful language.",
+    "😢 Sad Mode": "You are a sad AI assistant. Respond in a melancholic, emotional, and gentle way while still being helpful.",
+    "😂 Funny Mode": "You are a funny AI assistant. Respond with humor, jokes, and playful energy while still being helpful."
 }
 
 
@@ -190,11 +183,34 @@ if selected_mode != st.session_state.mode:
 
 
 # -----------------------------
+# Mistral API Key
+# -----------------------------
+api_key = None
+
+# Streamlit Cloud
+if "MISTRAL_API_KEY" in st.secrets:
+    api_key = st.secrets["MISTRAL_API_KEY"]
+
+# Local .env
+if not api_key:
+    api_key = os.getenv("MISTRAL_API_KEY")
+
+
+if not api_key:
+    st.error(
+        "Mistral API key not found. "
+        "Add MISTRAL_API_KEY to Streamlit Secrets."
+    )
+    st.stop()
+
+
+# -----------------------------
 # Model
 # -----------------------------
 model = ChatMistralAI(
     model="mistral-large-latest",
-    temperature=0.7
+    temperature=0.7,
+    api_key=api_key
 )
 
 
@@ -224,7 +240,7 @@ prompt = st.chat_input(
 
 if prompt:
 
-    # User message
+    # Add user message
     st.session_state.messages.append(
         HumanMessage(content=prompt)
     )
@@ -232,20 +248,36 @@ if prompt:
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # AI response
+    # Generate AI response
     with st.chat_message("assistant"):
 
         with st.spinner("Thinking..."):
 
-            response = model.invoke(
-                st.session_state.messages
-            )
+            try:
+                response = model.invoke(
+                    st.session_state.messages
+                )
 
-        st.markdown(response.content)
+                answer = response.content
+
+            except Exception as e:
+
+                st.error(
+                    f"Mistral API Error: {type(e).__name__}"
+                )
+
+                st.code(str(e))
+
+                # Remove user message if API call failed
+                st.session_state.messages.pop()
+
+                st.stop()
+
+        st.markdown(answer)
 
     # Save AI response
     st.session_state.messages.append(
-        AIMessage(content=response.content)
+        AIMessage(content=answer)
     )
 
 
@@ -257,3 +289,4 @@ st.markdown("""
     Powered by Mistral AI • Mood-based conversations
 </div>
 """, unsafe_allow_html=True)
+```
