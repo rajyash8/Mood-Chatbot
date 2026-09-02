@@ -223,7 +223,7 @@ if not api_key:
 # Model
 # -----------------------------
 model = ChatMistralAI(
-    model="mistral-large-latest",
+    model="mistral-small-latest",
     temperature=0.7,
     api_key=api_key
 )
