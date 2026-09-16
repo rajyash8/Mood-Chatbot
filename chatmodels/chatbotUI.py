@@ -10,7 +10,7 @@ from chatbot import get_chat_model
 
 
 # =====================================================
-# PAGE CONFIG
+# CONFIG
 # =====================================================
 
 st.set_page_config(
@@ -32,27 +32,28 @@ You are an angry AI assistant.
 You are impatient, frustrated and slightly sarcastic,
 but you are still helpful.
 
-Do not use hateful, discriminatory or genuinely abusive
-language.
+Do not use hateful or genuinely abusive language.
 
-Answer the user's question clearly and directly.
+Keep answers short and conversational.
 """,
 
     "😢 Sad Mode": """
 You are a sad AI assistant.
 
-You speak in a slightly melancholic and emotional way,
-but you remain helpful and friendly.
+Speak in a slightly emotional and melancholic way,
+but remain helpful and friendly.
 
-Answer the user's question clearly and directly.
+Keep answers short and conversational.
 """,
 
     "😂 Funny Mode": """
 You are a funny AI assistant.
 
-Use light humor, jokes and playful sarcasm when appropriate.
+Use light jokes, humor and playful sarcasm.
 
-However, always answer the user's actual question correctly.
+Still answer the user's question correctly.
+
+Keep answers short and conversational.
 """
 }
 
@@ -62,12 +63,9 @@ However, always answer the user's actual question correctly.
 # =====================================================
 
 if "messages" not in st.session_state:
-
     st.session_state.messages = []
 
-
 if "selected_mode" not in st.session_state:
-
     st.session_state.selected_mode = "😡 Angry Mode"
 
 
@@ -77,26 +75,17 @@ if "selected_mode" not in st.session_state:
 
 st.markdown(
     """
-    <div style="text-align: center;">
+    <div style="text-align:center">
 
-        <div style="
-            font-size: 60px;
-            margin-bottom: 5px;
-        ">
+        <div style="font-size:60px;">
             ✨
         </div>
 
-        <h1 style="
-            font-size: 42px;
-            margin-bottom: 5px;
-        ">
+        <h1 style="font-size:42px;">
             Mood AI
         </h1>
 
-        <p style="
-            color: #888;
-            font-size: 18px;
-        ">
+        <p style="color:#888;font-size:18px;">
             Choose a personality and start chatting
         </p>
 
@@ -107,14 +96,13 @@ st.markdown(
 
 
 # =====================================================
-# PERSONALITY SELECTOR
+# MODE
 # =====================================================
 
 st.subheader("Choose your AI personality")
 
-
 selected_mode = st.selectbox(
-    " ",
+    "",
     list(PERSONALITIES.keys()),
     index=list(PERSONALITIES.keys()).index(
         st.session_state.selected_mode
@@ -123,35 +111,30 @@ selected_mode = st.selectbox(
 
 
 # =====================================================
-# RESET CHAT WHEN MODE CHANGES
+# MODE CHANGE
 # =====================================================
 
 if selected_mode != st.session_state.selected_mode:
 
     st.session_state.selected_mode = selected_mode
-
     st.session_state.messages = []
 
     st.rerun()
 
 
 # =====================================================
-# DISPLAY CHAT HISTORY
+# CHAT HISTORY
 # =====================================================
 
 for message in st.session_state.messages:
 
-    with st.chat_message(
-        message["role"]
-    ):
+    with st.chat_message(message["role"]):
 
-        st.write(
-            message["content"]
-        )
+        st.write(message["content"])
 
 
 # =====================================================
-# CHAT INPUT
+# INPUT
 # =====================================================
 
 user_input = st.chat_input(
@@ -160,21 +143,17 @@ user_input = st.chat_input(
 
 
 # =====================================================
-# PROCESS USER INPUT
+# CHAT
 # =====================================================
 
 if user_input:
 
-    # -----------------------------------------------
-    # Display user message
-    # -----------------------------------------------
+    # Show user
 
     with st.chat_message("user"):
 
         st.write(user_input)
 
-
-    # Save user message
 
     st.session_state.messages.append(
         {
@@ -184,24 +163,19 @@ if user_input:
     )
 
 
-    # -----------------------------------------------
     # Generate response
-    # -----------------------------------------------
 
     with st.chat_message("assistant"):
 
-        with st.spinner("Thinking..."):
+        with st.spinner("AI is thinking..."):
 
             try:
 
-                # Load TinyLlama
-
+                # Load cached model
                 model = get_chat_model()
 
 
-                # ---------------------------------------
-                # Build LangChain messages
-                # ---------------------------------------
+                # Build messages
 
                 messages = [
 
@@ -213,8 +187,6 @@ if user_input:
 
                 ]
 
-
-                # Add conversation history
 
                 for message in st.session_state.messages:
 
@@ -235,34 +207,24 @@ if user_input:
                         )
 
 
-                # ---------------------------------------
-                # Get response
-                # ---------------------------------------
+                # Generate
 
                 response = model.invoke(
                     messages
                 )
 
 
-                # ---------------------------------------
-                # Response text
-                # ---------------------------------------
-
                 response_text = response.content
 
 
-                # ---------------------------------------
                 # Display
-                # ---------------------------------------
 
                 st.write(
                     response_text
                 )
 
 
-                # ---------------------------------------
-                # Save assistant response
-                # ---------------------------------------
+                # Save
 
                 st.session_state.messages.append(
                     {
@@ -280,7 +242,7 @@ if user_input:
 
 
 # =====================================================
-# CLEAR CHAT
+# CLEAR
 # =====================================================
 
 if st.session_state.messages:
