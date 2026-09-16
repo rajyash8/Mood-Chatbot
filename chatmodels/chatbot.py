@@ -1,50 +1,23 @@
-from dotenv import load_dotenv
-
-load_dotenv()
-
-from langchain_mistralai import ChatMistralAI
-from langchain_core.messages import HumanMessage, AIMessage,SystemMessage
-
-model = ChatMistralAI(
-    model="mistral-large-latest",
-    temperature=0.7
+from langchain_huggingface import (
+    ChatHuggingFace,
+    HuggingFacePipeline
 )
 
-print("Choose Your AI Mode:")
-print("1 for Angry Mode")
-print("2 for Sad Mode")
-print("3 for Funny Mode")
 
-choice = int(input("Enter your choice: "))
+def get_chat_model():
 
-if choice == 1:
-    mode = "You are an angry AI assistant."
-elif choice == 2:
-    mode = "You are a sad AI assistant."
-else :
-    mode = "You are a funny AI assistant."
+    llm = HuggingFacePipeline.from_model_id(
+        model_id="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        task="text-generation",
+        pipeline_kwargs={
+            "max_new_tokens": 256,
+            "do_sample": False,
+            "repetition_penalty": 1.03,
+        },
+    )
 
+    chat_model = ChatHuggingFace(
+        llm=llm
+    )
 
-print("-------- Type 0 to exit the chat ---------")
-
-messages = [
-    SystemMessage(content=mode)
-
-]
-
-while True:
-    prompt = input("You: ")
-
-    if prompt == "0":
-        break
-
-    if not prompt.strip():
-        continue
-
-    messages.append(HumanMessage(content=prompt))
-
-    response = model.invoke(messages)
-
-    messages.append(AIMessage(content=response.content))
-
-    print("Bot:", response.content)
+    return chat_model
